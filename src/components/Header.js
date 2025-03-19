@@ -25,32 +25,28 @@ const Header = () => {
       <nav className={`md:flex ${isOpen ? 'block' : 'hidden'} w-full md:w-auto transition-all duration-300 ease-in-out`}>
         <ul className="flex flex-col md:flex-row gap-6 mt-4 md:mt-0">
           <li>
-            <Link href="/" legacyBehavior>
-              <a className="text-lg font-semibold hover:text-[#8b0000]">Home</a>
+            <Link href="/" className="text-lg font-semibold hover:text-[#8b0000]">
+              Home
             </Link>
           </li>
           <li>
-            <Link href="/about" legacyBehavior>
-              <a className="text-lg font-semibold hover:text-[#8b0000]">About</a>
+            <Link href="/about" className="text-lg font-semibold hover:text-[#8b0000]">
+              About
+            </Link>
+          </li>
+          
+          <li>
+            <Link href="/contact" className="text-lg font-semibold hover:text-[#8b0000]">
+              Contact
             </Link>
           </li>
           <li>
-            <Link href="/success-stories" legacyBehavior>
-              <a className="text-lg font-semibold hover:text-[#8b0000]">Success Stories</a>
+            <Link href="/register">
+              <button className="bg-[#b22222] text-[#fffacd] px-4 py-2 rounded hover:bg-[#8b0000]">Register</button>
             </Link>
           </li>
           <li>
-            <Link href="/membership-plans" legacyBehavior>
-              <a className="text-lg font-semibold hover:text-[#8b0000]">Membership Plans</a>
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" legacyBehavior>
-              <a className="text-lg font-semibold hover:text-[#8b0000]">Contact</a>
-            </Link>
-          </li>
-          <li>
-            <Link href="/login" legacyBehavior>
+            <Link href="/login">
               <button className="bg-[#b22222] text-[#fffacd] px-4 py-2 rounded hover:bg-[#8b0000]">Login</button>
             </Link>
           </li>

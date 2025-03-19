@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffacd; /* Light yellow background */
+  --background: #f3e5ab; /* Light yellow background */
   --foreground: #b22222; /* Firebrick red for text */
   --font-hindu: 'Tiro Devanagari Sanskrit', serif; /* Example Hindu-style font */
 }

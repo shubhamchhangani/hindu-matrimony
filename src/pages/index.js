@@ -1,15 +1,14 @@
-import Header from "./src/components/Header";
-import Hero from "./src/components/Hero";
-import QuickSearch from "./src/components/QuickSearch";
-import FeaturedProfiles from "./src/components/FeaturedProfiles";
-import HinduCulture from "./src/components/HinduCulture";
-import Footer from "./src/components/Footer";
-
+import Header from "../components/Header";
+import Hero from "../components/Hero";
+import QuickSearch from "../components/QuickSearch";
+import FeaturedProfiles from "../components/FeaturedProfiles";
+import HinduCulture from "../components/HinduCulture";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
     <>
-    <Header />
+      <Header />
       <Hero />
       <QuickSearch />
       <FeaturedProfiles />
