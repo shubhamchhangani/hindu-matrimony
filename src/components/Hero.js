@@ -7,7 +7,7 @@ const Hero = () => {
       <div className="relative z-10 max-w-2xl">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 ml-8">Find Your Perfect Match</h1>
         <p className="text-lg md:text-xl mb-6 ml-8">Resilient traditions, auspicious beginnings</p>
-        <Link href="/register">
+        <Link href="/signup">
         <button className="bg-[#b22222] text-[#fffacd] px-6 py-3 rounded hover:bg-[#8b0000] ml-8">Get Started</button>
         </Link>
       </div>

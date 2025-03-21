@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",  // Enables static export
+  output: "export",
   images: {
-    unoptimized: true,  // Required if using Next.js Image component
+    unoptimized: true,
+    domains: [
+      'zrlzmigtsxfhfhedkqzy.supabase.co',  // Replace with your Supabase project URL
+      'images.unsplash.com'
+    ]
   },
-  trailingSlash: true,  // Helps with correct routing on Netlify
+  trailingSlash: true,
   productionBrowserSourceMaps: false,
 };
 
