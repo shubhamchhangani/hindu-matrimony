@@ -12,7 +12,7 @@ const Header = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push('/signin');
+      //router.push('/signin');
     } catch (error) {
       console.error('Error signing out:', error.message);
     }

@@ -54,7 +54,18 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut(); // Logs out user
+
+  if (error) {
+    console.error("Logout Error:", error.message);
+  } else {
+    console.log("User logged out successfully");
+
+    // Clear cookies manually (optional)
+    document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "sb-refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = "/signin"; // Redirect to sign in page
+  }
     setUser(null);
     setSession(null);
   };
