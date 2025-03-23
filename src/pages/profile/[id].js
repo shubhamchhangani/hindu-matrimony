@@ -1,82 +1,29 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';  // Changed from next/navigation
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchProfile } from '../../redux/slices/profilesSlice';
 import Image from 'next/image';
-import supabase from '../../utils/supabase/client';  // Updated path
-import Header from '../../components/Header';  // Updated path
-import Footer from '../../components/Footer';  // Updated path
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
-const ProfileDetail = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [profilepic, setProfilePic] = useState(null);
-  const [housepic, setHousePic] = useState(null);
+export default function ProfileDetail() {
   const router = useRouter();
-  const { id } = router.query;  // Use router.query instead of useSearchParams
-
-  
+  const { id } = router.query; // Grab profile ID from query parameters
+  const dispatch = useDispatch();
+  const { profile, status, error } = useSelector((state) => state.profiles);
 
   useEffect(() => {
-    if (id) {  // Only fetch when id is available after hydration
-      const fetchProfile = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', id)
-            .single();
-    
-          if (error) throw error;
-
-          // Get the public URL for profile picture if it exists
-          
-          // Get the public URL for house picture if it exists
-          async function fetchUserImages(id) {
-            // Fetch user data from Supabase database
-            const { data, error } = await supabase
-              .from("profiles") // Change this to your actual table name
-              .select("profile_picture, house_picture")
-              .eq("id", id)
-              .single();
-      
-            
-          
-            if (error) {
-              console.error("Error fetching user images:", error);
-              return null;
-            }
-      
-            
-      
-            const profilePic = data?.profile_picture;
-            const housePic = data?.house_picture;
-            //const housePic = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/house_pictures/${data.house_picture}`;
-            setProfilePic(profilePic);
-            setHousePic(housePic);
-        }
-
-        fetchUserImages(id);
-          
-
-          setProfile(data);
-        } catch (error) {
-          console.error('Error fetching profile:', error);
-          alert('Error loading profile');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchProfile();
+    if (id) {
+      dispatch(fetchProfile(id));
     }
-  }, [id]);
+  }, [id, dispatch]);
 
-  
   const handleBack = () => {
     router.push('/feed');
   };
 
-  if (loading) {
+  if (status === 'loading') {
     return (
       <>
         <Header />
@@ -88,7 +35,7 @@ const ProfileDetail = () => {
     );
   }
 
-  if (!profile) {
+  if (status === 'failed' || !profile) {
     return (
       <>
         <Header />
@@ -99,6 +46,10 @@ const ProfileDetail = () => {
       </>
     );
   }
+
+  // Assume the profile record includes profile_picture and house_picture fields
+  const profilepic = profile.profile_picture;
+  const housepic = profile.house_picture;
 
   return (
     <>
@@ -136,7 +87,7 @@ const ProfileDetail = () => {
                   className="object-cover"
                 />
               </div>
-              {profile.house_photo && (
+              {housepic && (
                 <div className="relative h-64 w-full rounded-lg overflow-hidden">
                   <Image
                     src={housepic}
@@ -166,7 +117,7 @@ const ProfileDetail = () => {
                 </div>
                 <div>
                   <p className="font-semibold">Annual Income</p>
-                  <p>₹{profile.annual_income.toLocaleString()}</p>
+                  <p>₹{profile.annual_income?.toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Location</p>
@@ -221,6 +172,4 @@ const ProfileDetail = () => {
       <Footer />
     </>
   );
-};
-
-export default ProfileDetail;
+}

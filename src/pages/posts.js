@@ -1,165 +1,168 @@
+// pages/posts.js
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import supabase from '../utils/supabase/client';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  fetchPosts,
+  createPost,
+  likePost,
+  unlikePost,
+  deletePost,
+  addComment,
+} from '../redux/slices/postsSlice';
 import Image from 'next/image';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useRouter } from 'next/router';
 
 export default function Posts() {
-  const { user } = useAuth();
+  const dispatch = useDispatch();
   const router = useRouter();
-  const [posts, setPosts] = useState([]);
+  const user = useSelector((state) => state.auth.user);
+  const posts = useSelector((state) => state.posts.posts);
+  const postsStatus = useSelector((state) => state.posts.status);
   const [newPost, setNewPost] = useState({ caption: '', image: null });
   const [loading, setLoading] = useState(false);
-  const [comments, setComments] = useState({});
+  // Local state for comment input per post
+  const [localComments, setLocalComments] = useState({});
 
-  // Redirect if not authenticated
+  // Redirect to signin if no user is logged in
   useEffect(() => {
     if (!user) {
-      router.push("/signin"); // Redirect to Signin page
+      router.push('/signin');
     }
   }, [user, router]);
 
+  // Fetch posts when component mounts and when user is available
   useEffect(() => {
     if (user) {
-      checkProfile();
-      fetchPosts();
+      dispatch(fetchPosts());
     }
-  }, [user]);
+  }, [dispatch, user]);
 
-  async function checkProfile() {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error || !data) {
-      await supabase.from('profiles').insert([{ id: user.id, full_name: user.email }]);
-    }
-  }
-
-  async function fetchPosts() {
-    try {
-        const { data, error } = await supabase
-  .from('posts')
-  .select(`
-    id,
-    caption,
-    image_url,
-    created_at,
-    profiles!fk_posts_profiles (id, full_name, profile_picture),
-    likes (id, user_id),
-    comments (
-      id,
-      content,
-      user_id,
-      created_at,
-      profiles!comments_user_id_fkey (full_name)
-    )
-  `)
-  .order('created_at', { ascending: false });
-
-if (error) {
-  console.error('Error fetching posts:', error);
-  return;
-}
-
-      
-      setPosts(data || []);
-    } catch (err) {
-      console.error('Error fetching posts:', err);
-    }
-  }
-
-  async function handlePostSubmit(e) {
+  const handlePostSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    // Dispatch createPost thunk (which handles file upload and post creation)
+    await dispatch(createPost({ caption: newPost.caption, imageFile: newPost.image, userId: user.id }));
+    setNewPost({ caption: '', image: null });
+    setLoading(false);
+  };
 
-    try {
-      let imageUrl = '';
-      if (newPost.image) {
-        const fileExt = newPost.image.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const { data, error } = await supabase.storage.from('posts').upload(fileName, newPost.image);
-        if (error) throw error;
-        imageUrl = data.path;
-      }
-
-      const { error } = await supabase.from('posts').insert({
-        user_id: user.id,
-        caption: newPost.caption,
-        image_url: imageUrl,
-      });
-
-      if (error) throw error;
-      setNewPost({ caption: '', image: null });
-      fetchPosts();
-    } catch (err) {
-      console.error('Error creating post:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleLike(postId) {
-    const post = posts.find(p => p.id === postId);
-    const isLiked = post.likes.some(like => like.user_id === user.id);
-
+  const handleLikeToggle = async (postId, isLiked) => {
     if (isLiked) {
-      await supabase.from('likes').delete().match({ user_id: user.id, post_id: postId });
+      await dispatch(unlikePost({ postId, userId: user.id }));
     } else {
-      await supabase.from('likes').insert([{ user_id: user.id, post_id: postId }]);
+      await dispatch(likePost({ postId, userId: user.id }));
     }
-    fetchPosts();
-  }
+    // Optionally refresh posts (or rely on realtime updates if implemented)  
+    dispatch(fetchPosts());
+  };
 
-  async function handleComment(postId, content) {
-    await supabase.from('comments').insert([{ user_id: user.id, post_id: postId, content }]);
-    setComments({ ...comments, [postId]: '' });
-    fetchPosts();
-  }
+  const handleComment = async (postId, commentContent) => {
+    if (!commentContent.trim()) return;
+    await dispatch(addComment({ postId, userId: user.id, content: commentContent }));
+    // Clear comment input for the given post
+    setLocalComments((prev) => ({ ...prev, [postId]: '' }));
+    dispatch(fetchPosts());
+  };
 
-  async function handleDeletePost(postId) {
-    await supabase.from('posts').delete().match({ id: postId, user_id: user.id });
-    fetchPosts();
-  }
+  const handleDeletePost = async (postId) => {
+    await dispatch(deletePost({ postId, userId: user.id }));
+    dispatch(fetchPosts());
+  };
 
   if (!user) return null;
 
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-lg">
+        {/* Post Creation Form */}
         <form onSubmit={handlePostSubmit} className="mb-8 p-4 bg-white rounded-lg shadow">
-          <input type="file" accept="image/*" onChange={(e) => setNewPost({ ...newPost, image: e.target.files[0] })} />
-          <textarea value={newPost.caption} onChange={(e) => setNewPost({ ...newPost, caption: e.target.value })} placeholder="Write your caption..." />
-          <button type="submit" disabled={loading}>{loading ? 'Posting...' : 'Post'}</button>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewPost({ ...newPost, image: e.target.files[0] })}
+            className="mb-4 border rounded w-full p-2"
+          />
+          <textarea
+            value={newPost.caption}
+            onChange={(e) => setNewPost({ ...newPost, caption: e.target.value })}
+            placeholder="Write your caption..."
+            className="w-full p-2 border rounded mb-4"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-[#b22222] text-white px-4 py-2 rounded w-full hover:bg-red-700"
+          >
+            {loading ? 'Posting...' : 'Post'}
+          </button>
         </form>
 
+        {/* Posts Listing */}
         <div className="space-y-8">
-          {posts.map(post => (
-            <div key={post.id} className="bg-white rounded-lg shadow p-4">
-              <div className="flex items-center">
-                <Image src={post.profiles.profile_picture || '/default-avatar.png'} width={40} height={40} className="rounded-full" alt={post.profiles.full_name} />
-                <span className="ml-2 font-semibold">{post.profiles.full_name}</span>
-                {post.user_id === user.id && <button onClick={() => handleDeletePost(post.id)}>Delete</button>}
+          {posts && posts.map((post) => {
+            const isLiked = post.likes.some(like => like.user_id === user.id);
+            return (
+              <div key={post.id} className="bg-white rounded-lg shadow p-4">
+                <div className="flex items-center mb-4">
+                  <Image
+                    src={post.profiles?.profile_picture || '/default-avatar.png'}
+                    alt={post.profiles?.full_name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <span className="ml-2 font-semibold">{post.profiles?.full_name}</span>
+                  {post.user_id === user.id && (
+                    <button onClick={() => handleDeletePost(post.id)} className="ml-auto text-red-500">
+                      Delete
+                    </button>
+                  )}
+                </div>
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/posts/${post.image_url}`}
+                  alt="Post"
+                  width={500}
+                  height={500}
+                  className="rounded mb-4"
+                />
+                <button
+                  onClick={() => handleLikeToggle(post.id, isLiked)}
+                  className="mb-2 block text-left text-lg font-semibold"
+                >
+                  {isLiked ? '♥' : '♡'} {post.likes.length} likes
+                </button>
+                <p className="mb-4 text-gray-800">{post.caption}</p>
+                <div className="mb-4">
+                  {post.comments.map((comment) => (
+                    <div key={comment.id} className="flex items-start space-x-2 text-sm">
+                      <span className="font-semibold">{comment.profiles?.full_name}:</span>
+                      <p>{comment.content}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={localComments[post.id] || ''}
+                    onChange={(e) =>
+                      setLocalComments({ ...localComments, [post.id]: e.target.value })
+                    }
+                    placeholder="Add a comment..."
+                    className="flex-1 border p-2 rounded"
+                  />
+                  <button
+                    onClick={() => handleComment(post.id, localComments[post.id] || '')}
+                    className="bg-[#b22222] text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Post
+                  </button>
+                </div>
               </div>
-              <Image src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/posts/${post.image_url}`} width={500} height={500} alt="Post" />
-              <button onClick={() => handleLike(post.id)}>{post.likes.some(like => like.user_id === user.id) ? '♥' : '♡'} {post.likes.length} likes</button>
-              <p>{post.caption}</p>
-              <div>
-                {post.comments.map(comment => (
-                  <div key={comment.id}>
-                    <span>{comment.profiles.full_name}:</span> {comment.content}
-                  </div>
-                ))}
-              </div>
-              <input type="text" value={comments[post.id] || ''} onChange={(e) => setComments({ ...comments, [post.id]: e.target.value })} />
-              <button onClick={() => handleComment(post.id, comments[post.id])}>Post</button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
       <Footer />

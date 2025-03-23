@@ -26,23 +26,33 @@ const Feed = () => {
       if (error) throw error;
   
       const profilesWithUrls = data.map(profile => {
+        let imageUrl = "";
         // Set default image if no profile picture
         if (!profile.profile_picture) {
+          console.log(`Profile ${profile.id} has no profile picture, using default.`);
           return {
             ...profile,
             profile_picture: "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           };
         }
   
-        // Get public URL for profile picture
-        const { data } = supabase
-          .storage
-          .from('userphotos')
-          .getPublicUrl(profile.profile_picture);
-  
+        
+        // If the stored URL already starts with "http", use it directly.
+  else if (profile.profile_picture.startsWith("https")) {
+    imageUrl = profile.profile_picture;
+  }
+
+  // Otherwise, generate the public URL.
+  else {
+    const { data: urlData } = supabase
+      .storage
+      .from('userphotos')
+      .getPublicUrl(profile.profile_picture);
+    imageUrl = urlData.publicUrl;
+  }
         return {
           ...profile,
-          profile_picture: data?.publicUrl || "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          profile_picture: imageUrl || "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         };
       });
   

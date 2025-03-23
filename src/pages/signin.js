@@ -3,35 +3,36 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { signIn } from '../redux/slices/authSlice';
 import { motion } from 'framer-motion';
 import supabase from '../utils/supabase/client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const SignIn = () => {
+  const dispatch = useDispatch();
+  const { user, stautus, error } = useSelector((state) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState(null);
   const [resendSuccess, setResendSuccess] = useState(null);
-  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setError(null);
-
-    try {
-      await signIn(email, password);
+    console.log('handleSubmit called with:', { email, password });
+    const result = await dispatch(signIn({ email, password }));
+    console.log('Result from signIn thunk:', result);
+    if (signIn.fulfilled.match(result)) {
+      console.log('Sign in succeeded');
       router.push('/feed');
-    } catch (signInError) {
-      if (signInError.message === 'Email not confirmed') {
-        setError('Email not confirmed. Please check your inbox for the confirmation email.');
-      } else {
-        setError(signInError.message);
-      }
+    } else {
+      console.error('Sign in failed', result);
+      setErrors(result);
     }
-  };
+    }
+  
 
   const handleResendVerification = async () => {
     const { error: resendError } = await supabase.auth.resend({ type: "signup",
@@ -155,7 +156,7 @@ const SignIn = () => {
                   transition={{ delay: 0.3 }}
                   className="flex justify-center mt-6"
                 >
-                  <Link href="/register" className="nav-btn text-center">
+                  <Link href="/signup" className="nav-btn text-center">
                     Don&apos;t have an account? Register
                   </Link>
                 </motion.div>
@@ -232,7 +233,8 @@ const SignIn = () => {
       `}</style>
       <Footer />
     </>
-  );
+  )
+
 };
 
 export default SignIn;

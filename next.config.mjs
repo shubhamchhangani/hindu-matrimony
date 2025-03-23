@@ -5,7 +5,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
     domains: [
-      'zrlzmigtsxfhfhedkqzy.supabase.co',  // Replace with your Supabase project URL
+        // Replace with your Supabase project URL
       'images.unsplash.com'
     ]
   },

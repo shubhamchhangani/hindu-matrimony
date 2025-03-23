@@ -1,45 +1,43 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { signUp } from '../redux/slices/authSlice';
 import Image from 'next/image';
-import supabase from '../utils/supabase/client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Signup = () => {
+  const dispatch = useDispatch();
+  const { user, status, error } = useSelector((state) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState(null);
   const router = useRouter();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError(null);
+    setErrors(null);
 
     try {
-      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const resultAction = await dispatch(signUp({ email, password }));
+      if (signUp.fulfilled.match(resultAction)) {
+        const userId = resultAction.payload.id;
+        router.push(`/register?uid=${userId}`);
+      };
 
       if (signUpError) {
-        setError(signUpError.message);
+        setErrors(signUpError.message);
         return;
       }
 
-      if (user) {
-        // Add success message to inform user about verification email
-        //setError("Please check your email for verification link");
-        
-        // Route to register page with uid
-        router.push(`/register?uid=${user.id}`);
-      }
+      
     } catch (error) {
-      setError('An error occurred during sign up');
+      setErrors('An error occurred during sign up');
     }
   };
 
-  return (
+  return (        
     <>
       <Header />
       <div

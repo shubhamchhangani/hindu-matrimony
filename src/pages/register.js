@@ -8,7 +8,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Link from "next/link";
 import supabase from "../utils/supabase/client";
-import { useAuth } from "../contexts/AuthContext";
 
 // Define your validation schema using Yup
 const schema = Yup.object().shape({
@@ -33,7 +32,6 @@ const schema = Yup.object().shape({
 });
 
 const MultiStepForm = () => {
-  const { session, setSession } = useAuth();
   const {
     register,
     handleSubmit,
