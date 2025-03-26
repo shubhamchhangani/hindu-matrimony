@@ -13,56 +13,48 @@ const Feed = () => {
   const router = useRouter();
 
   useEffect(() => {
-    fetchProfiles();
+    fetchProfilesWithImages();
   }, []);
 
-  const fetchProfiles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-  
-      if (error) throw error;
-  
-      const profilesWithUrls = data.map(profile => {
-        let imageUrl = "";
-        // Set default image if no profile picture
-        if (!profile.profile_picture) {
-          console.log(`Profile ${profile.id} has no profile picture, using default.`);
-          return {
-            ...profile,
-            profile_picture: "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          };
-        }
-  
-        
-        // If the stored URL already starts with "http", use it directly.
-  else if (profile.profile_picture.startsWith("https")) {
-    imageUrl = profile.profile_picture;
-  }
+  // In your feed.js, after fetching profiles from the 'profiles' table,
+// you can query for related images:
+const fetchProfilesWithImages = async () => {
+  try {
+    const { data: profilesData, error } = await supabase
+      .from('profiles')
+      .select(`
+        *,
+        profile_images:profile_images ( image_type, image_url )
+      `)
+      .order('created_at', { ascending: false });
 
-  // Otherwise, generate the public URL.
-  else {
-    const { data: urlData } = supabase
-      .storage
-      .from('userphotos')
-      .getPublicUrl(profile.profile_picture);
-    imageUrl = urlData.publicUrl;
+    if (error) throw error;
+
+    // Process each profile to organize images
+    const profilesWithImages = profilesData.map(profile => {
+      // Separate images by type
+      const profileImgs = profile.profile_images
+        ? profile.profile_images.filter(img => img.image_type === 'profile')
+        : [];
+      const houseImgs = profile.profile_images
+        ? profile.profile_images.filter(img => img.image_type === 'house')
+        : [];
+      // You can also merge in other images if available
+      return {
+        ...profile,
+        profile_images: profileImgs,
+        house_images: houseImgs,
+      };
+    });
+
+    setProfiles(profilesWithImages);
+  } catch (error) {
+    console.error('Error fetching profiles:', error);
+  } finally {
+    setLoading(false);
   }
-        return {
-          ...profile,
-          profile_picture: imageUrl || "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        };
-      });
-  
-      setProfiles(profilesWithUrls);
-    } catch (error) {
-      console.error('Error fetching profiles:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+};
+
 
   const handleProfileClick = (userId) => {
     router.push(`/profile/${userId}`);

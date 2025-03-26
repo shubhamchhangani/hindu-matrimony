@@ -76,6 +76,7 @@ const authSlice = createSlice({
       .addCase(signOut.fulfilled, (state) => {
         state.user = null;
         state.status = 'idle';
+        state.error = null;
       })
       // Load User Session
       .addCase(loadUser.pending, (state) => {

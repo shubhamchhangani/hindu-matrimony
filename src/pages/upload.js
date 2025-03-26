@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import supabase from '../utils/supabase/client';
@@ -8,7 +8,10 @@ import Footer from '../components/Footer';
 const Upload = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [housePhoto, setHousePhoto] = useState(null);
+  const [profilePhotoType, setProfilePhotoType] = useState('profile'); // default for first input
+  const [housePhotoType, setHousePhotoType] = useState('house'); // default for second input
   const [uploading, setUploading] = useState(false);
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const uid = searchParams.get('uid');
@@ -33,6 +36,33 @@ const Upload = () => {
     }
   };
 
+  // A helper function to upload a file and insert a record into profile_images table
+  const uploadImage = async (file, imageType) => {
+    const fileExt = file.name.split('.').pop();
+    // Construct a unique filename so multiple uploads are possible.
+    const fileName = `${uid}/${imageType}_${Date.now()}.${fileExt}`;
+
+    // Upload file with upsert option so that if the file exists it is replaced
+    const { error: uploadError } = await supabase.storage
+      .from('userphotos')
+      .upload(fileName, file, { upsert: true });
+    if (uploadError) throw uploadError;
+
+    // Retrieve public URL
+    const { data: urlData } = supabase.storage
+      .from('userphotos')
+      .getPublicUrl(fileName);
+    const imageUrl = urlData.publicUrl;
+
+    // Insert a new record into profile_images table
+    const { error: dbError } = await supabase
+      .from('profile_images')
+      .insert([{ profile_id: uid, image_type: imageType, image_url: imageUrl, file_path: fileName }]);
+    if (dbError) throw dbError;
+
+    return imageUrl;
+  };
+
   const handleUpload = async () => {
     if (!profilePhoto) {
       alert('Please select a profile photo');
@@ -41,49 +71,14 @@ const Upload = () => {
 
     try {
       setUploading(true);
-      const photoUrls = {};
 
-      // Upload profile photo
-      const profileFileExt = profilePhoto.name.split('.').pop();
-      const profileFileName = `${uid}/profile_${Date.now()}.${profileFileExt}`;
-      
-      const { error: profileError } = await supabase.storage
-        .from('userphotos')
-        .upload(profileFileName, profilePhoto);
+      // Upload the first image (with its selected type)
+      await uploadImage(profilePhoto, profilePhotoType);
 
-      if (profileError) throw profileError;
-      
-      const { data: { publicUrl: profileUrl } } = supabase.storage
-        .from('userphotos')
-        .getPublicUrl(profileFileName);
-      
-      photoUrls.profile_picture = profileUrl;
-
-      // Upload house photo if selected
+      // If a house photo is selected, upload it too with its type
       if (housePhoto) {
-        const houseFileExt = housePhoto.name.split('.').pop();
-        const houseFileName = `${uid}/house_${Date.now()}.${houseFileExt}`;
-        
-        const { error: houseError } = await supabase.storage
-          .from('userphotos')
-          .upload(houseFileName, housePhoto);
-
-        if (houseError) throw houseError;
-        
-        const { data: { publicUrl: houseUrl } } = supabase.storage
-          .from('userphotos')
-          .getPublicUrl(houseFileName);
-        
-        photoUrls.house_picture = houseUrl;
+        await uploadImage(housePhoto, housePhotoType);
       }
-
-      // Update profile with photo URLs
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update(photoUrls)
-        .eq('id', uid);
-
-      if (updateError) throw updateError;
 
       alert('Photos uploaded successfully!');
       router.push('/feed'); // Redirect to feed page
@@ -98,13 +93,28 @@ const Upload = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen flex items-center justify-center bg-cover bg-center"
-           style={{ backgroundImage: "url('/background.webp')" }}>
+      <div
+        className="min-h-screen flex items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/background.webp')" }}
+      >
         <div className="p-8 bg-[#f3e5ab] shadow-2xl rounded-2xl w-full max-w-lg">
-          <h2 className="text-2xl font-bold text-center mb-6 text-[#b22222]">Upload Photos</h2>
-          
+          <h2 className="text-2xl font-bold text-center mb-6 text-[#b22222]">
+            Upload Photos
+          </h2>
+
+          {/* Profile Photo Section */}
           <div className="mb-6">
-            <label className="block text-[#b22222] font-semibold mb-2">Profile Photo (Required)</label>
+            <label className="block text-[#b22222] font-semibold mb-2">
+              Profile Photo (Required)
+            </label>
+            <select
+              value={profilePhotoType}
+              onChange={(e) => setProfilePhotoType(e.target.value)}
+              className="w-full p-2 border-2 border-[#b22222] rounded mb-2"
+            >
+              <option value="profile">Profile Image</option>
+              <option value="house">House Image</option>
+            </select>
             <input
               type="file"
               accept="image/*"
@@ -112,12 +122,25 @@ const Upload = () => {
               className="w-full p-2 border-2 border-[#b22222] rounded"
             />
             {profilePhoto && (
-              <p className="mt-2 text-sm text-[#b22222]">Selected: {profilePhoto.name}</p>
+              <p className="mt-2 text-sm text-[#b22222]">
+                Selected: {profilePhoto.name}
+              </p>
             )}
           </div>
 
+          {/* House Photo Section */}
           <div className="mb-6">
-            <label className="block text-[#b22222] font-semibold mb-2">House Photo (Optional)</label>
+            <label className="block text-[#b22222] font-semibold mb-2">
+              House Photo (Optional)
+            </label>
+            <select
+              value={housePhotoType}
+              onChange={(e) => setHousePhotoType(e.target.value)}
+              className="w-full p-2 border-2 border-[#b22222] rounded mb-2"
+            >
+              <option value="house">House Image</option>
+              <option value="profile">Profile Image</option>
+            </select>
             <input
               type="file"
               accept="image/*"
@@ -125,17 +148,20 @@ const Upload = () => {
               className="w-full p-2 border-2 border-[#b22222] rounded"
             />
             {housePhoto && (
-              <p className="mt-2 text-sm text-[#b22222]">Selected: {housePhoto.name}</p>
+              <p className="mt-2 text-sm text-[#b22222]">
+                Selected: {housePhoto.name}
+              </p>
             )}
           </div>
 
           <button
             onClick={handleUpload}
             disabled={uploading || !profilePhoto}
-            className={`w-full p-3 rounded-lg text-white font-semibold
-              ${uploading || !profilePhoto
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-[#b22222] hover:bg-[#8b0000] transition-colors'}`}
+            className={`w-full p-3 rounded-lg text-white font-semibold ${
+              uploading || !profilePhoto
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#b22222] hover:bg-[#8b0000] transition-colors'
+            }`}
           >
             {uploading ? 'Uploading...' : 'Upload Photos'}
           </button>

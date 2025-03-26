@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Get session on mount
     const getSession = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
@@ -25,7 +24,6 @@ export const AuthProvider = ({ children }) => {
 
     getSession();
 
-    // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
@@ -38,14 +36,12 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // Signup function
   const signUp = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     return data;
   };
 
-  // Login function
   const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -55,19 +51,17 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  // Logout function
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut(); // Logs out user
+    const { error } = await supabase.auth.signOut();
 
     if (error) {
       console.error("Logout Error:", error.message);
     } else {
       console.log("User logged out successfully");
 
-      // Clear cookies manually (optional)
       document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "sb-refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      router.push('/signin'); // Redirect to sign in page
+      router.push('/signin');
     }
     setUser(null);
     setSession(null);
@@ -80,7 +74,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

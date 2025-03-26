@@ -16,9 +16,9 @@ const schema = Yup.object().shape({
   gender: Yup.string().oneOf(["Male", "Female", "Other"], "Invalid gender").required("Select your gender"),
   caste: Yup.string().max(100, "Caste too long"),
   mother_tongue: Yup.string().max(50, "Mother tongue too long").required("Please enter your mother tongue"),
-  country: Yup.string().max(100, "Country name too long"),
-  state: Yup.string().max(100, "State name too long"),
-  city: Yup.string().max(100, "City name too long"),
+  country: Yup.string().max(100, "Country name too long").required("Please enter your country"),
+  state: Yup.string().max(100, "State name too long").required("Please enter your state"),
+  city: Yup.string().max(100, "City name too long").required("Please enter your city"),
   phone_number: Yup.string().max(20, "Phone number too long"),
   bio: Yup.string().max(500, "Bio too long"),
   marital_status: Yup.string().oneOf(["Single", "Divorced", "Widowed"], "Invalid marital status"),
@@ -42,7 +42,7 @@ const MultiStepForm = () => {
   });
 
   const [step, setStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
   const router = useRouter();
   const searchParams = useSearchParams();
   const uid = searchParams.get('uid');
@@ -61,8 +61,6 @@ const MultiStepForm = () => {
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  // Helper function to upload files to the "userphotos" bucket
-  
   const onSubmit = async (data) => {
     console.log("onSubmit fired with data:", data);
     try {
@@ -147,11 +145,9 @@ const MultiStepForm = () => {
               </motion.div>
             )}
 
-            
-
             {step === 3 && (
-              <motion.div key="step4" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                <h2 className="text-xl font-bold text-center mb-6">Step 4: Professional Info</h2>
+              <motion.div key="step3" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                <h2 className="text-xl font-bold text-center mb-6">Step 3: Professional Info</h2>
                 <input {...register("occupation")} placeholder="Occupation" className="input-field" />
                 <p className="error-text">{errors.occupation?.message}</p>
                 <input {...register("annual_income")} type="number" placeholder="Annual Income" className="input-field" />
@@ -164,11 +160,10 @@ const MultiStepForm = () => {
             )}
 
             {step === 4 && (
-              <motion.div key="step5" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                <h2 className="text-xl font-bold text-center mb-6">Step 5: Lifestyle Info</h2>
-                {/* New mother tongue input */}
-    <input {...register("mother_tongue")} placeholder="Mother Tongue" className="input-field" />
-    <p className="error-text">{errors.mother_tongue?.message}</p>
+              <motion.div key="step4" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                <h2 className="text-xl font-bold text-center mb-6">Step 4: Lifestyle Info</h2>
+                <input {...register("mother_tongue")} placeholder="Mother Tongue" className="input-field" />
+                <p className="error-text">{errors.mother_tongue?.message}</p>
                 <select {...register("diet")} className="input-field">
                   <option value="">Select Diet Preference</option>
                   <option value="Vegetarian">Vegetarian</option>
@@ -183,6 +178,18 @@ const MultiStepForm = () => {
                 <label className="block mt-4 mb-2 font-semibold">Drinking Habit</label>
                 <input {...register("drinking_habit")} type="checkbox" className="input-field" />
                 <p className="error-text">{errors.drinking_habit?.message}</p>
+              </motion.div>
+            )}
+
+            {step === 5 && (
+              <motion.div key="step5" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                <h2 className="text-xl font-bold text-center mb-6">Step 5: Location Info</h2>
+                <input {...register("country")} placeholder="Country" className="input-field" />
+                <p className="error-text">{errors.country?.message}</p>
+                <input {...register("state")} placeholder="State" className="input-field" />
+                <p className="error-text">{errors.state?.message}</p>
+                <input {...register("city")} placeholder="City" className="input-field" />
+                <p className="error-text">{errors.city?.message}</p>
               </motion.div>
             )}
           </AnimatePresence>
