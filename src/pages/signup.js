@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { signUp } from '../redux/slices/authSlice';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -92,7 +93,15 @@ const Signup = () => {
               </div>
               {error && <p className="error-text">{error}</p>}
               <button type="submit" className="submit-btn">Sign Up</button>
+            {/* Link to Sign In */}
+            <p className="text-center mt-4 text-sm text-[#b22222]">
+              Already registered?{' '}
+              <Link href="/signin" className="font-semibold text-[#8b0000] hover:underline">
+                Sign In
+              </Link>
+            </p>
             </form>
+            {errors && <p className="error-text">{errors}</p>}
           </div>
         </div>
         <style jsx>{`

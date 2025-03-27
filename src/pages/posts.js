@@ -76,7 +76,7 @@ export default function Posts() {
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-lg">
+      <main className="container mx-auto bg-[#fff5e6] px-4 py-8 max-w-lg">
         {/* Post Creation Form */}
         <form onSubmit={handlePostSubmit} className="mb-8 p-4 bg-white rounded-lg shadow">
           <input

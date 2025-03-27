@@ -65,10 +65,10 @@ const Header = () => {
   return (
     <header className="bg-[#f3e5ab] text-[#b22222] py-4 px-6 flex justify-between items-center shadow-md relative ">
       {/* Logo */}
-      <div className="flex items-center">
+      <Link href="/" className="flex items-center">
         <Image src="/logo.webp" alt="Logo" width={40} height={40} className="mr-3" />
         <h1 className="text-2xl font-bold">Matrimony</h1>
-      </div>
+      </Link>
 
       {/* Mobile Menu Toggle */}
       <div className="md:hidden absolute right-6 top-4">

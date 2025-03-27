@@ -60,7 +60,7 @@ const MyPosts = () => {
   return (
     <>
       <Header />
-      <div className="p-6">
+      <div className="p-6 bg-[#fff5e6]">
         <h1 className="text-2xl font-bold text-center mb-6">My Posts</h1>
 
         {/* Add New Post */}
