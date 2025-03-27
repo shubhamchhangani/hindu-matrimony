@@ -21,12 +21,13 @@ const Feed = () => {
 // Example snippet inside Feed.js (no style changes as per your request)
 const fetchProfilesWithImages = async () => {
   try {
+    // Fetch profiles and their associated primary profile images
     const { data: profilesData, error } = await supabase
       .from('profiles')
       .select(`
         *,
-        profile_images:profile_images (
-          image_type, image_url, is_primary_profile
+        profile_images (
+          image_url, is_primary_profile
         )
       `)
       .order('created_at', { ascending: false });
@@ -35,14 +36,18 @@ const fetchProfilesWithImages = async () => {
 
     // Process each profile to pick the primary profile image (if exists)
     const profilesWithImages = profilesData.map(profile => {
-      // Filter images of type 'profile' that are marked as primary
-      const primary = profile.profile_images?.find(img => img.is_primary_profile);
+      // Filter images to find the primary profile image
+      const primaryImage = profile.profile_images?.find(img => img.is_primary_profile)?.image_url;
+
       // Fallback: If no primary image exists, use a default avatar based on gender
-      let primaryImage = primary ? primary.image_url :
-        (profile.gender === 'Female'
-          ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS08t3lZlT_JscMUhdU5tbWMj9vnLBm9K3yKA&s"
-          : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8oghbsuzggpkknQSSU-Ch_xep_9v3m6EeBQ&s");
-      return { ...profile, primary_image: primaryImage };
+      const fallbackImage = profile.gender === 'Female'
+        ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS08t3lZlT_JscMUhdU5tbWMj9vnLBm9K3yKA&s"
+        : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8oghbsuzggpkknQSSU-Ch_xep_9v3m6EeBQ&s";
+
+      return {
+        ...profile,
+        primary_image: primaryImage || fallbackImage, // Assign the primary image or fallback
+      };
     });
 
     setProfiles(profilesWithImages);
@@ -88,7 +93,7 @@ const fetchProfilesWithImages = async () => {
               >
                 <div className="relative h-64 w-full">
                   <Image
-                    src={profile.profile_picture}
+                    src={profile.primary_image} // Use primary_image
                     alt={profile.full_name}
                     fill
                     className="object-cover"

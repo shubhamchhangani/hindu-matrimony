@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 const HinduCulture = () => {
   return (
@@ -11,7 +12,8 @@ const HinduCulture = () => {
           <h3 className="text-2xl font-semibold text-center md:text-left">🕉️ Hindu Marriage Traditions</h3>
           <p className="text-center md:text-left mt-2">Understanding Vedic rituals like Kanyadaan, Saptapadi, and Mangalsutra.</p>
           <div className="mt-4 flex justify-center md:justify-start">
-            <button className="bg-[#b22222] text-[#fffacd] px-4 py-2 rounded hover:bg-[#8b0000] transition duration-300 ease-in-out transform hover:scale-105">Learn More</button>
+            <Link href="/hindu-marriage-traditions"> <button className="bg-[#b22222] text-[#fffacd] px-4 py-2 rounded hover:bg-[#8b0000] transition duration-300 ease-in-out transform hover:scale-105">Learn More</button> </Link>
+            
           </div>
         </div>
       </div>

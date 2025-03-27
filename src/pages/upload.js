@@ -38,11 +38,13 @@ const Upload = () => {
 
   // A helper function to upload a file and insert a record into profile_images table
   const uploadImage = async (file, imageType) => {
-    const fileExt = file.name.split('.').pop();
-    // Construct a unique filename so multiple uploads are possible.
-    const fileName = `${uid}/${imageType}_${Date.now()}.${fileExt}`;
+    if (typeof window === 'undefined') return; // Ensure this runs only on the client
 
-    // Upload file with upsert option so that if the file exists it is replaced
+    const fileExt = file.name.split('.').pop();
+    const timestamp = Date.now(); // Generate timestamp on the client
+    const fileName = `${uid}/${imageType}_${timestamp}.${fileExt}`;
+
+    // Upload file with upsert option
     const { error: uploadError } = await supabase.storage
       .from('userphotos')
       .upload(fileName, file, { upsert: true });
@@ -54,10 +56,20 @@ const Upload = () => {
       .getPublicUrl(fileName);
     const imageUrl = urlData.publicUrl;
 
+    // Determine if the image should be set as primary
+    const isPrimaryProfile = imageType === 'profile';
+    const isPrimaryHouse = imageType === 'house';
+
     // Insert a new record into profile_images table
     const { error: dbError } = await supabase
       .from('profile_images')
-      .insert([{ profile_id: uid, image_type: imageType, image_url: imageUrl}]);
+      .insert([{
+        profile_id: uid,
+        image_type: imageType,
+        image_url: imageUrl,
+        is_primary_profile: isPrimaryProfile, // Set as primary profile image if applicable
+        is_primary_house: isPrimaryHouse,     // Set as primary house image if applicable
+      }]);
     if (dbError) throw dbError;
 
     return imageUrl;

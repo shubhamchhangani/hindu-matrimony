@@ -64,16 +64,8 @@ const Header = () => {
               Home
             </Link>
           </li>
-          <li>
-            <Link href="/about" className="text-lg font-semibold hover:text-[#8b0000]">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" className="text-lg font-semibold hover:text-[#8b0000]">
-              Contact
-            </Link>
-          </li>
+          
+          
           
           {user ? (
             <>
