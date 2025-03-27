@@ -108,7 +108,7 @@ export default function Posts() {
               <div key={post.id} className="bg-white rounded-lg shadow p-4">
                 <div className="flex items-center mb-4">
                   <Image
-                    src={post.profiles?.profile_picture || '/default-avatar.png'}
+                    src={post.profile_picture}
                     alt={post.profiles?.full_name}
                     width={40}
                     height={40}
