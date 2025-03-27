@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'; // For pages directory
+import { useRouter } from 'next/router';
 import Image from 'next/image';
 import supabase from '../../utils/supabase/client';
 import Header from '../../components/Header';
@@ -14,7 +14,7 @@ import AllPhotosModal from '../../components/AllPhotosModal';
 
 const ProfileDetails = () => {
   const router = useRouter();
-  const { id } = router.query; // Dynamic route parameter (e.g. /profile/USER_ID)
+  const { id } = router.query;
   const [profile, setProfile] = useState(null);
   const [allImages, setAllImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,7 @@ const ProfileDetails = () => {
   const [showModal, setShowModal] = useState(false);
   const [loadingPrimary, setLoadingPrimary] = useState(false);
   const [authUser, setAuthUser] = useState(null);
+  const [sliderImages, setSliderImages] = useState([]);
 
   // Editable fields state
   const [maritalStatus, setMaritalStatus] = useState('');
@@ -33,12 +34,9 @@ const ProfileDetails = () => {
   const [occupation, setOccupation] = useState('');
   const [annualIncome, setAnnualIncome] = useState('');
 
-  // File states for updating primary images (optional if you want separate update forms)
-  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
-  const [housePhotoFile, setHousePhotoFile] = useState(null);
-
   // Load authenticated user session
   useEffect(() => {
+    if (!router.isReady) return;
     const loadUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && session.user) {
@@ -46,9 +44,9 @@ const ProfileDetails = () => {
       }
     };
     loadUser();
-  }, []);
+  }, [router]);
 
-  // Fetch profile and images when router is ready
+  // Fetch profile and images
   useEffect(() => {
     if (!router.isReady) return;
     if (!id) {
@@ -62,9 +60,8 @@ const ProfileDetails = () => {
         .select('*')
         .eq('id', id)
         .maybeSingle();
-      if (error) {
-        console.error("Error fetching profile:", error);
-      } else if (data) {
+      if (error) console.error("Error fetching profile:", error);
+      else if (data) {
         setProfile(data);
         setMaritalStatus(data.marital_status || '');
         setWeight(data.weight_kg || '');
@@ -78,18 +75,37 @@ const ProfileDetails = () => {
       setLoading(false);
     };
 
-    const fetchImages = async () => {
+    // Fetch primary images for the slider
+  const fetchPrimaryImages = async () => {
+    try {
       const { data, error } = await supabase
         .from('profile_images')
         .select('*')
-        .eq('profile_id', id);
-      if (error) console.error("Error fetching images:", error);
-      else if (data) setAllImages(data);
-    };
+        .eq('profile_id', id)
+        .or('is_primary_profile.eq.true,is_primary_house.eq.true'); // Fetch both primary profile and house images
+      if (error) throw error;
+
+      const primaryProfileImage = data.find((img) => img.is_primary_profile);
+      const primaryHouseImage = data.find((img) => img.is_primary_house);
+
+      const sliderImages = [];
+      if (primaryProfileImage) sliderImages.push(primaryProfileImage.image_url);
+      if (primaryHouseImage) sliderImages.push(primaryHouseImage.image_url);
+
+      setSliderImages(sliderImages);
+    } catch (error) {
+      console.error("Error fetching primary images:", error);
+    }
+  };
+
 
     fetchProfile();
-    fetchImages();
+    fetchPrimaryImages();
   }, [id, router]);
+
+  
+  // Call this function in the `useEffect` hook
+  
 
   // Refresh images callback
   const refreshImages = async () => {
@@ -101,9 +117,7 @@ const ProfileDetails = () => {
     else if (data) setAllImages(data);
   };
 
-  // Handler to set an image as primary (update primary image in your app)
-  // In this implementation, you may simply choose one image from the gallery to be primary.
-  // For example, update a field in the profiles table if needed, or simply reorder images.
+  // Handler to set an image as primary for profile or house
   const handleSetPrimary = async (imageId, type) => {
     setLoadingPrimary(true);
     const selectedImage = allImages.find((img) => img.id === imageId);
@@ -112,23 +126,24 @@ const ProfileDetails = () => {
       return;
     }
     try {
-      // In the new design, the primary images are those used in the slider.
-      // One approach is to update the profiles table with the chosen primary URLs.
       const updateData = {};
       if (type === 'profile') updateData.profile_picture = selectedImage.image_url;
       else if (type === 'house') updateData.house_picture = selectedImage.image_url;
+
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', id);
       if (error) throw error;
-      // Refresh profile data
+
+      // Refresh the profile data to reflect the changes
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', id)
         .maybeSingle();
       setProfile(data);
+
       alert(`Primary ${type} image updated successfully!`);
     } catch (error) {
       console.error("Error setting primary image:", error);
@@ -138,7 +153,7 @@ const ProfileDetails = () => {
     setShowModal(false);
   };
 
-  // Handler for updating profile text fields (without images, as images are now managed separately)
+  // Handler for updating profile text fields
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -184,11 +199,6 @@ const ProfileDetails = () => {
     );
   }
 
-  // Prepare slider images: use primary profile & house images from profiles table (if updated via setPrimary)
-  const sliderImages = [];
-  if (profile && profile.profile_picture) sliderImages.push(profile.profile_picture);
-  if (profile && profile.house_picture) sliderImages.push(profile.house_picture);
-
   return (
     <>
       <Header />
@@ -197,6 +207,7 @@ const ProfileDetails = () => {
           <h1 className="text-4xl font-extrabold text-center text-[#8B0000] mb-8">
             {profile.full_name}&apos;s Profile
           </h1>
+
           {/* Primary Images Slider */}
           {sliderImages.length > 0 ? (
             <Swiper
@@ -209,24 +220,29 @@ const ProfileDetails = () => {
             >
               {sliderImages.map((imgUrl, idx) => (
                 <SwiperSlide key={idx}>
-                  <div className="relative h-80 w-full">
-                    <Image src={imgUrl} alt={`Image ${idx + 1}`} fill className="object-cover rounded-lg" />
+                  <div className="relative h-64 w-full sm:h-80 md:h-96">
+                    <Image
+                      src={imgUrl}
+                      alt={`Image ${idx + 1}`}
+                      fill
+                      className="object-cover rounded-lg border border-gray-300"
+                    />
                   </div>
                 </SwiperSlide>
               ))}
             </Swiper>
           ) : (
-            <div className="flex items-center justify-center h-80 bg-gray-200 rounded-lg mb-8">
-              <p className="text-xl text-gray-600">No primary images available</p>
+            <div className="flex items-center justify-center h-64 sm:h-80 md:h-96 bg-gray-200 rounded-lg mb-8">
+              <p className="text-lg sm:text-xl text-gray-600">No primary images available</p>
             </div>
           )}
 
-          {/* "All Photos" Button (only for owner) */}
+          {/* "All Photos" Button */}
           {authUser && authUser.id === id && (
             <div className="mb-8 text-center">
               <button
                 onClick={() => setShowModal(true)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                className="px-6 py-3 bg-[#8B0000] text-white rounded-full hover:bg-[#640000] transition-colors shadow-lg"
               >
                 View All Photos
               </button>
@@ -236,6 +252,7 @@ const ProfileDetails = () => {
           {/* Gallery Modal */}
           {showModal && (
             <AllPhotosModal
+              profileId={id}
               images={allImages}
               onClose={() => setShowModal(false)}
               onSetPrimary={handleSetPrimary}
@@ -246,16 +263,61 @@ const ProfileDetails = () => {
           )}
 
           {/* Profile Details */}
-          <div className="mb-8 space-y-4 text-lg text-gray-800">
-            <p><strong>Marital Status:</strong> {profile.marital_status}</p>
-            <p><strong>Weight:</strong> {profile.weight_kg} kg</p>
-            <p><strong>Bio:</strong> {profile.bio}</p>
-            <p><strong>City:</strong> {profile.city}</p>
-            <p><strong>State:</strong> {profile.state}</p>
-            <p><strong>Country:</strong> {profile.country}</p>
-            <p><strong>Occupation:</strong> {profile.occupation}</p>
-            <p><strong>Annual Income:</strong> ₹{profile.annual_income}</p>
+          <div className="mb-8 space-y-4 text-base sm:text-lg text-gray-800">
+            <p>
+              <strong>Full Name:</strong> {profile.full_name}
+            </p>
+            <p>
+              <strong>Date of Birth:</strong> {new Date(profile.date_of_birth).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Gender:</strong> {profile.gender}
+            </p>
+            <p>
+              <strong>Caste:</strong> {profile.caste || "Not specified"}
+            </p>
+            <p>
+              <strong>Mother Tongue:</strong> {profile.mother_tongue}
+            </p>
+            <p>
+              <strong>Marital Status:</strong> {profile.marital_status || "Not specified"}
+            </p>
+            <p>
+              <strong>Height:</strong> {profile.height_cm ? `${profile.height_cm} cm` : "Not specified"}
+            </p>
+            <p>
+              <strong>Weight:</strong> {profile.weight_kg ? `${profile.weight_kg} kg` : "Not specified"}
+            </p>
+            <p>
+              <strong>Diet:</strong> {profile.diet || "Not specified"}
+            </p>
+            <p>
+              <strong>Smoking Habit:</strong> {profile.smoking_habit ? "Yes" : "No"}
+            </p>
+            <p>
+              <strong>Drinking Habit:</strong> {profile.drinking_habit ? "Yes" : "No"}
+            </p>
+            <p>
+              <strong>Occupation:</strong> {profile.occupation}
+            </p>
+            <p>
+              <strong>Annual Income:</strong> ₹{profile.annual_income}
+            </p>
+            <p>
+              <strong>City:</strong> {profile.city || "Not specified"}
+            </p>
+            <p>
+              <strong>State:</strong> {profile.state || "Not specified"}
+            </p>
+            <p>
+              <strong>Country:</strong> {profile.country || "Not specified"}
+            </p>
+            <p>
+              <strong>Bio:</strong> {profile.bio || "Not specified"}
+            </p>
           </div>
+        
+                
 
           {/* Update Profile Form (only for owner) */}
           {authUser && authUser.id === id && (
@@ -268,7 +330,7 @@ const ProfileDetails = () => {
               </button>
               {editMode && (
                 <form onSubmit={handleUpdateProfile} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-semibold">Marital Status</label>
                       <input
@@ -296,7 +358,7 @@ const ProfileDetails = () => {
                       className="w-full border border-gray-300 p-2 rounded"
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block font-semibold">City</label>
                       <input
@@ -325,7 +387,7 @@ const ProfileDetails = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-semibold">Occupation</label>
                       <input

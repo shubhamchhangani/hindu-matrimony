@@ -18,33 +18,31 @@ const Feed = () => {
 
   // In your feed.js, after fetching profiles from the 'profiles' table,
 // you can query for related images:
+// Example snippet inside Feed.js (no style changes as per your request)
 const fetchProfilesWithImages = async () => {
   try {
     const { data: profilesData, error } = await supabase
       .from('profiles')
       .select(`
         *,
-        profile_images:profile_images ( image_type, image_url )
+        profile_images:profile_images (
+          image_type, image_url, is_primary_profile
+        )
       `)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    // Process each profile to organize images
+    // Process each profile to pick the primary profile image (if exists)
     const profilesWithImages = profilesData.map(profile => {
-      // Separate images by type
-      const profileImgs = profile.profile_images
-        ? profile.profile_images.filter(img => img.image_type === 'profile')
-        : [];
-      const houseImgs = profile.profile_images
-        ? profile.profile_images.filter(img => img.image_type === 'house')
-        : [];
-      // You can also merge in other images if available
-      return {
-        ...profile,
-        profile_images: profileImgs,
-        house_images: houseImgs,
-      };
+      // Filter images of type 'profile' that are marked as primary
+      const primary = profile.profile_images?.find(img => img.is_primary_profile);
+      // Fallback: If no primary image exists, use a default avatar based on gender
+      let primaryImage = primary ? primary.image_url :
+        (profile.gender === 'Female'
+          ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS08t3lZlT_JscMUhdU5tbWMj9vnLBm9K3yKA&s"
+          : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8oghbsuzggpkknQSSU-Ch_xep_9v3m6EeBQ&s");
+      return { ...profile, primary_image: primaryImage };
     });
 
     setProfiles(profilesWithImages);
@@ -96,7 +94,7 @@ const fetchProfilesWithImages = async () => {
                     className="object-cover"
                     onError={(e) => {
                       // Use placeholder image on error
-                      e.target.src = "https://images.unsplash.com/photo-1742210595290-f021aba0d9f2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                      e.target.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS08t3lZlT_JscMUhdU5tbWMj9vnLBm9K3yKA&s";
                       // Prevent infinite loop by removing the error handler
                       e.target.onerror = null;
                     }}

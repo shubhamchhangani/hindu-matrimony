@@ -57,7 +57,7 @@ const Upload = () => {
     // Insert a new record into profile_images table
     const { error: dbError } = await supabase
       .from('profile_images')
-      .insert([{ profile_id: uid, image_type: imageType, image_url: imageUrl, file_path: fileName }]);
+      .insert([{ profile_id: uid, image_type: imageType, image_url: imageUrl}]);
     if (dbError) throw dbError;
 
     return imageUrl;
