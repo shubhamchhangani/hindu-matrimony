@@ -113,6 +113,11 @@ const Header = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/admin" className="text-lg font-semibold hover:text-[#8b0000]">
+                  admin
+                </Link>
+              </li>
+              <li>
                 <Link href="/posts" className="text-lg font-semibold hover:text-[#8b0000]">
                   Posts
                 </Link>

@@ -33,6 +33,7 @@ const ProfileDetails = () => {
   const [country, setCountry] = useState('');
   const [occupation, setOccupation] = useState('');
   const [annualIncome, setAnnualIncome] = useState('');
+  //const session = useSession();
 
   // Load authenticated user session
   useEffect(() => {
@@ -45,6 +46,22 @@ const ProfileDetails = () => {
     };
     loadUser();
   }, [router]);
+
+
+  // Chat handler
+
+  const startChat = async () => {
+    const { data, error } = await fetch("/api/chats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user1: authUser.id, user2: user.id }),
+    }).then((res) => res.json());
+
+    if (!error) {
+      router.push(`/chat/${data.id}`);
+    }
+  };
+
 
   // Fetch profile and images
   useEffect(() => {
@@ -315,6 +332,13 @@ const ProfileDetails = () => {
             <p>
               <strong>Bio:</strong> {profile.bio || "Not specified"}
             </p>
+            <div>
+      
+     
+            <button onClick={startChat} disabled={!profile.allowChat}>
+      {profile.allowChat ? "Start Chat" : "User has disabled chat"}
+    </button>
+    </div>
           </div>
         
                 
