@@ -5,7 +5,6 @@ import Image from 'next/image';
 import supabase from '../utils/supabase/client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { fetchImages, fetchSingleImage } from '../utils/supabase/client';
 
 const Feed = () => {
   const [profiles, setProfiles] = useState([]);

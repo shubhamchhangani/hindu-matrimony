@@ -13,7 +13,7 @@ export const fetchEvents = createAsyncThunk('events/fetchEvents', async (_, thun
       image_url,
       created_at,
       admin_user_id,
-      profiles!events_admin_user_id_fkey (full_name)
+      profiles!events_admin_user_id_fkey (full_name) -- Join profiles table to fetch admin name
     `)
     .order('date', { ascending: true });
 

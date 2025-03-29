@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEvents } from '../redux/slices/eventsSlice';
+import { fetchEvents } from '../redux/slices/eventSlice';
 import Image from 'next/image';
 
 const Events = () => {
@@ -28,7 +28,7 @@ const Events = () => {
               <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
               <p className="text-gray-600 mb-4">{new Date(event.date).toLocaleDateString()}</p>
               <p className="text-gray-800 mb-4">{event.description}</p>
-              <p className="text-gray-600">Created by: {event.profiles.full_name}</p>
+              <p className="text-gray-600">Created by: {event.profiles?.full_name}</p>
             </div>
           </div>
         ))}
