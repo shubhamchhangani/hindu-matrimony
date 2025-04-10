@@ -1,0 +1,128 @@
+[
+    {
+      "Gotra": "सनकस (Sanakas)",
+      "Kuldevi": "वरुणाचिदेवी (Varunachidevi)",
+      "Details": {
+        "Pravar": "सहोत्र, गृछमद, गार्छमद (Sahotra, Grichhmad, Garchhmad)",
+        "Veda": "ऋगवेद, सामवेद, यजुर्वेद (Rigveda, Samaveda, Yajurveda)",
+        "Shakha": "आश्वलायनी, माध्यंदिनी, कौथुमी (Ashvalayani, Madhyandini, Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "भारद्वाज (Bharadwaja)",
+      "Kuldevi": "बन्धुकशानिदेवी (Bandhukshanidevi)",
+      "Details": {
+        "Pravar": "अंगीरस, बार्हस्पत्य, भारद्वाज (Angiras, Barhaspatya, Bharadwaja)",
+        "Veda": "ऋगवेद, यजुर्वेद, अथर्ववेद, सामवेद (Rigveda, Yajurveda, Atharvaveda, Samaveda)",
+        "Shakha": "आश्वलायनी, माध्यंदिनी, कौथुमी, स्वान्तरायिणी (Ashvalayani, Madhyandini, Kauthumi, Swantarayini)"
+      }
+    },
+    {
+      "Gotra": "पाराशर (Parashara)",
+      "Kuldevi": "वतयाक्षिनिदेवी (Vatayakshinidevi)",
+      "Details": {
+        "Pravar": "वशिष्ठ, शक्ति, पाराशर (Vashistha, Shakti, Parashara)",
+        "Veda": "ऋग्वेद, सामवेद (Rigveda, Samaveda)",
+        "Shakha": "आश्वलायनी, कौथुमी (Ashvalayani, Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "कौशिक (Kaushik)",
+      "Kuldevi": "कमलेश्वरीदेवी (Kamaleshwaridevi)",
+      "Details": {
+        "Pravar": "विश्वामित्र, देवराज, ऊदल (Vishwamitra, Devaraj, Udal)",
+        "Veda": "ऋग्वेद, सामवेद (Rigveda, Samaveda)",
+        "Shakha": "आश्वलायनी, कौथुमी (Ashvalayani, Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "वत्सस (Vatsas)",
+      "Kuldevi": "बालागौरिदेवी (Balagauridevi)",
+      "Details": {
+        "Pravar": "भृगुच्यवन, औब, आपनवान, जमदग्नि (Bhriguchyavan, Aub, Apanvan, Jamadagni)",
+        "Veda": "यजुर्वेद, सामवेद (Yajurveda, Samaveda)",
+        "Shakha": "माध्यंदिनी, कौथुमी (Madhyandini, Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "औपमन्यव (Aupamanyava)",
+      "Kuldevi": "नागिनिदेवी (Naginidevi)",
+      "Details": {
+        "Pravar": "उपमन्यु (Upamanyu)",
+        "Veda": "सामवेद (Samaveda)",
+        "Shakha": "कौथुमी (Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "काश्यप (Kashyap)",
+      "Kuldevi": "योगेश्वरिदेवी (Yogeshwaridevi)",
+      "Details": {
+        "Pravar": "काश्यप, वत्स, नैऋत (Kashyap, Vats, Nairit)",
+        "Veda": "सामवेद (Samaveda)",
+        "Shakha": "कौथुमी, स्वान्तरायिणी (Kauthumi, Swantarayini)"
+      }
+    },
+    {
+      "Gotra": "गौतम (Gautam)",
+      "Kuldevi": "निम्बजादेवी (Nimbajadevi)",
+      "Details": {
+        "Pravar": "उतिथ्य, अंगिरस, गौतम (Utithya, Angiras, Gautam)",
+        "Veda": "अथर्ववेद, यजुर्वेद (Atharvaveda, Yajurveda)",
+        "Shakha": "माध्यंदिनी (Madhyandini)"
+      }
+    },
+    {
+      "Gotra": "शाण्डिल्य (Shandilya)",
+      "Kuldevi": "क्षेम्करिदेवी (Kshemkaridevi)",
+      "Details": {
+        "Pravar": "शाण्डिल्य, आसिल्य, देवल (Shandilya, Asilya, Deval)",
+        "Veda": "यजुर्वेद (Yajurveda)",
+        "Shakha": "माध्यंदिनी (Madhyandini)"
+      }
+    },
+    {
+      "Gotra": "चान्द्रास (Chandras)",
+      "Kuldevi": "महालक्ष्मिदेवी (Mahalakshmidevi)",
+      "Details": {
+        "Pravar": "अत्रि, गविष्ठ, पूर्ण (Atri, Gavishtha, Purna)",
+        "Veda": "यजुर्वेद, सामवेद (Yajurveda, Samaveda)",
+        "Shakha": "माध्यंदिनी, कौथुमी (Madhyandini, Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "लौडवान (Laudvaan)",
+      "Kuldevi": "चामुण्डादेवी (Chamundadevi)",
+      "Details": {
+        "Pravar": "अंगिरस, उतिथ्य, लौडवान (Angiras, Utithya, Laudvaan)",
+        "Veda": "यजुर्वेद (Yajurveda)",
+        "Shakha": "माध्यंदिनी (Madhyandini)"
+      }
+    },
+    {
+      "Gotra": "मौदगल (Maudgal)",
+      "Kuldevi": "खराननादेवी (Kharananadevi)",
+      "Details": {
+        "Pravar": "अंगिरस, भारम्य, मौदगल (Angiras, Bharamya, Maudgal)",
+        "Veda": "सामवेद (Samaveda)",
+        "Shakha": "कौथुमी (Kauthumi)"
+      }
+    },
+    {
+      "Gotra": "कपिंजल (Kapinjal)",
+      "Kuldevi": "बगस्थलीदेवी (Bagasthalidevi)",
+      "Details": {
+        "Pravar": "कपिंजल, माणव, अत्रेय (Kapinjal, Manava, Atreya)",
+        "Veda": "यजुर्वेद (Yajurveda)",
+        "Shakha": "माध्यंदिनी (Madhyandini)"
+      }
+    },
+    {
+      "Gotra": "हरितस (Haritas)",
+      "Kuldevi": "दत्तचण्डीदेवी (Dattachandidevi)",
+      "Details": {
+        "Pravar": "हरित, भृगु, अंगिरस (Harita, Bhrigu, Angiras)",
+        "Veda": "यजुर्वेद (Yajurveda)",
+        "Shakha": "माध्यंदिनी (Madhyandini)"
+      }
+    }
+  ]

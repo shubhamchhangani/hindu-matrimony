@@ -1,0 +1,34 @@
+[
+    {
+      "Name": "Shrimali Brahmin Samaj Dharamshala",
+      "Location": "Shrimali Vas, Ratlam, Madhya Pradesh",
+      "Address": "Shrimali Vas, Ratlam, Madhya Pradesh, India",
+      "Manager": {
+        "President": "Nayan Vyas",
+        "Secretary": "Kuldeep Trivedi",
+        "Treasurer": "Chetan Vyas"
+      },
+      "ContactNumber": "N/A",
+      "DharamshalaContact": "N/A",
+      "Facilities": [
+        "Community hall",
+        "Pilgrim lodging",
+        "Prasad distribution"
+      ],
+      "Description": "धर्मशाला श्रीमाली वास, रतलाम में स्थित है, जिसका संचालन श्रीमाली ब्राह्मण समाज प्रबंध कार्यकारिणी समिति द्वारा किया जाता है।" 
+    },
+    {
+      "Name": "Akhil Bharatvarshiya Shrimali Brahman Samaj Sanstha Dharamshala",
+      "Location": "Pushkar, Ajmer, Rajasthan",
+      "Address": "Near Brahma Mandir Road, Pushkar, Ajmer, Rajasthan, India",
+      "Manager": "N/A",
+      "ContactNumber": "N/A",
+      "DharamshalaContact": "N/A",
+      "Facilities": [
+        "Meeting hall",
+        "Pilgrim lodging"
+      ],
+      "Description": "पुष्कर में अखिल भारतीय श्रीमाली ब्राह्मण समाज संस्था द्वारा संचालित धर्मशाला।" 
+    }
+  ]
+  

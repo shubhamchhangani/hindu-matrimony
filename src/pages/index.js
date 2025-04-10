@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import Events from "../components/Events";
 import About from "../components/About";
 import Contact from "../components/Contact";
+import Cards from "../components/cards";
 
 
 export default function Home() {
@@ -13,7 +14,7 @@ export default function Home() {
     <>
       <Header />
       <Hero />
-      
+      <Cards />
       <Events />
       <About />
       <Contact />
