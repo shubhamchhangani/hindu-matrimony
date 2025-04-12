@@ -61,6 +61,19 @@ const MultiStepForm = () => {
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+   
+  const age = calculateAge(data.date_of_birth);
+
   const onSubmit = async (data) => {
     console.log("onSubmit fired with data:", data);
     try {
@@ -86,6 +99,7 @@ const MultiStepForm = () => {
           diet: data.diet,
           smoking_habit: data.smoking_habit,
           drinking_habit: data.drinking_habit,
+          age: age,
         },
       ]);
 
