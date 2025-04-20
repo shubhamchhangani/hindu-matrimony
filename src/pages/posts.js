@@ -99,7 +99,7 @@ export default function Posts() {
         {/* Posts Listing */}
         <div className="space-y-8">
           {posts && posts.map((post) => {
-            const isLiked = post.likes.some((like) => like.user_id === user.id); // No more error
+            const isLiked = Array.isArray(post.likes) && post.likes.some((like) => like.user_id === user.id); // Ensure post.likes is an array
             return (
               <div key={post.id} className="bg-white rounded-lg shadow p-4">
                 <div className="flex items-center mb-4">
@@ -128,11 +128,11 @@ export default function Posts() {
                   onClick={() => handleLikeToggle(post.id, isLiked)}
                   className="mb-2 block text-left text-lg font-semibold"
                 >
-                  {isLiked ? '♥' : '♡'} {post.likes.length} likes
+                  {isLiked ? '♥' : '♡'} {post.likes?.length || 0} likes
                 </button>
                 <p className="mb-4 text-gray-800">{post.caption}</p>
                 <div className="mb-4">
-                  {post.comments.map((comment) => (
+                  {post.comments?.map((comment) => (
                     <div key={comment.id} className="flex items-start space-x-2 text-sm">
                       <span className="font-semibold">{comment.full_name}:</span>
                       <p>{comment.content}</p>

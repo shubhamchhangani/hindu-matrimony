@@ -71,11 +71,13 @@ const MultiStepForm = () => {
     }
     return age;
   };
-   
-  const age = calculateAge(data.date_of_birth);
 
   const onSubmit = async (data) => {
     console.log("onSubmit fired with data:", data);
+
+    // Calculate age inside the onSubmit function
+    const age = calculateAge(data.date_of_birth);
+
     try {
       // Insert profile details into the "profiles" table
       const { error: profileError } = await supabase.from("profiles").insert([
@@ -116,7 +118,7 @@ const MultiStepForm = () => {
       alert("An unexpected error occurred. Please try again.");
     }
   };
-  
+
   return (
     <>
       <Header />
