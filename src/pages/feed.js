@@ -130,7 +130,7 @@ const Feed = () => {
           </div>
 
           {/* Filter Controls */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6 justify-center">
             <input
               type="text"
               value={searchTerm}
@@ -138,29 +138,6 @@ const Feed = () => {
               placeholder="नाम खोजें..."
               className="w-full sm:w-1/4 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#b22222]"
             />
-            {suggestions.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-12 w-64">
-                {suggestions.map((suggestion) => (
-                  <li
-                    key={suggestion.id}
-                    onClick={() => handleSuggestionClick(suggestion.id)}
-                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {suggestion.full_name} - {suggestion.city} ({suggestion.gotra})
-                  </li>
-                ))}
-              </ul>
-            )}
-            <select
-              value={selectedGotra}
-              onChange={(e) => setSelectedGotra(e.target.value)}
-              className="w-full sm:w-1/4 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#b22222]"
-            >
-              <option value="">सभी गोत्र</option>
-              {gotras.map((g, i) => (
-                <option key={i} value={g.Gotra}>{g.Gotra}</option>
-              ))}
-            </select>
             <select
               value={selectedGender}
               onChange={(e) => setSelectedGender(e.target.value)}
@@ -170,15 +147,15 @@ const Feed = () => {
               <option value="Male">पुरुष</option>
               <option value="Female">महिला</option>
             </select>
-            <div className="w-full sm:w-1/4">
-              <label className="block text-gray-700 mb-1">आयु सीमा</label>
+            <div className="w-full sm:w-1/2 md:w-1/3 mx-auto flex flex-col items-center">
+              <label className="block text-gray-700 mb-1 text-center">आयु सीमा</label>
               <input
                 type="range"
                 min="18"
                 max="60"
                 value={ageRange[0]}
                 onChange={(e) => setAgeRange([Number(e.target.value), ageRange[1]])}
-                className="w-full"
+                className="w-full h-2 bg-gray-300 rounded-lg accent-[#b22222]"
               />
               <input
                 type="range"
@@ -186,9 +163,9 @@ const Feed = () => {
                 max="60"
                 value={ageRange[1]}
                 onChange={(e) => setAgeRange([ageRange[0], Number(e.target.value)])}
-                className="w-full"
+                className="w-full h-2 bg-gray-300 rounded-lg accent-[#b22222] mt-2"
               />
-              <p className="text-gray-600">{ageRange[0]} - {ageRange[1]} वर्ष</p>
+              <p className="text-gray-600 mt-2">{ageRange[0]} - {ageRange[1]} वर्ष</p>
             </div>
           </div>
 

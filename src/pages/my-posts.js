@@ -11,11 +11,8 @@ const MyPosts = () => {
   const posts = useSelector((state) => state.posts.posts);
   const [newPost, setNewPost] = useState({ caption: '', image: null });
   const [loading, setLoading] = useState(false);
-  const [editingPost, setEditingPost] = useState(null); // Track the post being edited
-  const [updatedPost, setUpdatedPost] = useState({ caption: '', image: null }); // Updated post data
-
-  console.log('Logged-in user:', user); // Debugging
-  console.log('Redux posts state:', posts); // Debugging
+  const [editingPost, setEditingPost] = useState(null);
+  const [updatedPost, setUpdatedPost] = useState({ caption: '', image: null });
 
   useEffect(() => {
     if (user) {
@@ -27,14 +24,14 @@ const MyPosts = () => {
     e.preventDefault();
     setLoading(true);
     await dispatch(createPost({ caption: newPost.caption, imageFile: newPost.image, userId: user.id }));
-    await dispatch(fetchPosts()); // Fetch posts immediately after creating
+    await dispatch(fetchPosts());
     setNewPost({ caption: '', image: null });
     setLoading(false);
   };
 
   const handleDeletePost = async (postId) => {
     await dispatch(deletePost({ postId, userId: user.id }));
-    await dispatch(fetchPosts()); // Fetch posts immediately after deleting
+    await dispatch(fetchPosts());
   };
 
   const handleEditPost = (post) => {
@@ -51,7 +48,7 @@ const MyPosts = () => {
       updatedImage: updatedPost.image,
       userId: user.id,
     }));
-    await dispatch(fetchPosts()); // Fetch posts immediately after updating
+    await dispatch(fetchPosts());
     setEditingPost(null);
     setUpdatedPost({ caption: '', image: null });
     setLoading(false);
@@ -60,98 +57,99 @@ const MyPosts = () => {
   return (
     <>
       <Header />
-      <div className="p-6 bg-[#fff5e6]">
-        <h1 className="text-2xl font-bold text-center mb-6">My Posts</h1>
+      <div className="p-6 bg-[#fff5e6] min-h-screen">
+        <h1 className="text-3xl font-bold text-center mb-8">My Posts</h1>
 
         {/* Add New Post */}
-        <form onSubmit={handlePostSubmit} className="mb-8 p-4 bg-white rounded-lg shadow">
+        <form onSubmit={handlePostSubmit} className="mb-10 p-6 bg-white rounded-lg shadow-2xl max-w-xl mx-auto">
           <input
             type="file"
             accept="image/*"
             onChange={(e) => setNewPost({ ...newPost, image: e.target.files[0] })}
-            className="mb-4 border rounded w-full p-2"
+            className="mb-4 w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <textarea
             value={newPost.caption}
             onChange={(e) => setNewPost({ ...newPost, caption: e.target.value })}
             placeholder="Write your caption..."
-            className="w-full p-2 border rounded mb-4"
+            className="w-full p-3 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white py-3 rounded-lg transition transform hover:scale-105 hover:bg-blue-600 focus:outline-none"
           >
             {loading ? 'Posting...' : 'Post'}
           </button>
         </form>
 
         {/* Display Posts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts
-            .filter((post) => {
-              console.log('Filtering posts:', { postUserId: post.user_id, loggedInUserId: user.id }); // Debugging
-              return post.user_id === user.id;
-            })
-            .map((post) => (
-              <div key={post.id} className="border rounded p-4 shadow">
-                {editingPost === post.id ? (
-                  <form onSubmit={handleUpdatePost}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setUpdatedPost({ ...updatedPost, image: e.target.files[0] })}
-                      className="mb-4 border rounded w-full p-2"
-                    />
-                    <textarea
-                      value={updatedPost.caption}
-                      onChange={(e) => setUpdatedPost({ ...updatedPost, caption: e.target.value })}
-                      placeholder="Update your caption..."
-                      className="w-full p-2 border rounded mb-4"
-                    />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.filter((post) => post.user_id === user.id).map((post) => (
+            <div key={post.id} className="bg-white rounded-lg shadow-2xl overflow-hidden">
+              {editingPost === post.id ? (
+                <form onSubmit={handleUpdatePost} className="p-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setUpdatedPost({ ...updatedPost, image: e.target.files[0] })}
+                    className="mb-4 w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  />
+                  <textarea
+                    value={updatedPost.caption}
+                    onChange={(e) => setUpdatedPost({ ...updatedPost, caption: e.target.value })}
+                    placeholder="Update your caption..."
+                    className="w-full p-3 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  />
+                  <div className="flex justify-between">
                     <button
                       type="submit"
                       disabled={loading}
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                      className="bg-green-500 text-white py-2 px-4 rounded-lg transition transform hover:scale-105 hover:bg-green-600 focus:outline-none"
                     >
                       {loading ? 'Updating...' : 'Update'}
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingPost(null)}
-                      className="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      className="bg-gray-500 text-white py-2 px-4 rounded-lg transition transform hover:scale-105 hover:bg-gray-600 focus:outline-none"
                     >
                       Cancel
                     </button>
-                  </form>
-                ) : (
-                  <>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="relative w-full h-56">
                     <Image
                       src={post.image_url}
                       alt="Post Image"
-                      width={300}
-                      height={200}
-                      className="rounded mb-4"
+                      layout="fill"
+                      objectFit="cover"
+                      className="transition transform hover:scale-105"
                     />
-                    <p className="text-gray-700 mb-2">{post.caption}</p>
-                    <div className="flex gap-2 mt-4">
+                  </div>
+                  <div className="p-4">
+                    <p className="text-gray-800 mb-4">{post.caption}</p>
+                    <div className="flex gap-4">
                       <button
                         onClick={() => handleEditPost(post)}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                        className="bg-yellow-500 text-white py-2 px-4 rounded-lg transition transform hover:scale-105 hover:bg-yellow-600 focus:outline-none"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeletePost(post.id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white py-2 px-4 rounded-lg transition transform hover:scale-105 hover:bg-red-600 focus:outline-none"
                       >
                         Delete
                       </button>
                     </div>
-                  </>
-                )}
-              </div>
-            ))}
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
         </div>
       </div>
       <Footer />

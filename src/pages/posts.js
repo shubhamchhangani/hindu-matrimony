@@ -139,7 +139,7 @@ export default function Posts() {
                     </div>
                   ))}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap space-x-2">
                   <input
                     type="text"
                     value={localComments[post.id] || ''}
@@ -151,7 +151,7 @@ export default function Posts() {
                   />
                   <button
                     onClick={() => handleComment(post.id, localComments[post.id] || '')}
-                    className="bg-[#b22222] text-white px-4 py-2 rounded hover:bg-red-700"
+                    className="bg-[#b22222] text-white px-2 py-1 md:px-4 md:py-2 rounded hover:bg-red-700"
                   >
                     Post
                   </button>

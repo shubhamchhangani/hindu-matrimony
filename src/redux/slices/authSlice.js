@@ -4,10 +4,18 @@ import supabase from '../../utils/supabase/client';
 
 // Async thunk for signing in
 export const signIn = createAsyncThunk('auth/signIn', async ({ email, password }, thunkAPI) => {
-    console.log("signing in from redux toolkit and authSlice")
+  console.log("signing in from redux toolkit and authSlice");
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return thunkAPI.rejectWithValue(error.message);
-  return data.user;
+  const user = data.user;
+  // Fetch user's role from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profileError) return thunkAPI.rejectWithValue(profileError.message);
+  return { ...user, role: profile.role };
 });
 
 // Async thunk for signing up
