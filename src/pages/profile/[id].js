@@ -33,7 +33,6 @@ const ProfileDetails = () => {
   const [country, setCountry] = useState('');
   const [occupation, setOccupation] = useState('');
   const [annualIncome, setAnnualIncome] = useState('');
-  //const session = useSession();
 
   // Load authenticated user session
   useEffect(() => {
@@ -47,21 +46,17 @@ const ProfileDetails = () => {
     loadUser();
   }, [router]);
 
-
   // Chat handler
-
   const startChat = async () => {
     const { data, error } = await fetch("/api/chats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user1: authUser.id, user2: user.id }),
+      body: JSON.stringify({ user1: authUser.id, user2: profile.id }),
     }).then((res) => res.json());
-
     if (!error) {
       router.push(`/chat/${data.id}`);
     }
   };
-
 
   // Fetch profile and images
   useEffect(() => {
@@ -93,36 +88,28 @@ const ProfileDetails = () => {
     };
 
     // Fetch primary images for the slider
-  const fetchPrimaryImages = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profile_images')
-        .select('*')
-        .eq('profile_id', id)
-        .or('is_primary_profile.eq.true,is_primary_house.eq.true'); // Fetch both primary profile and house images
-      if (error) throw error;
-
-      const primaryProfileImage = data.find((img) => img.is_primary_profile);
-      const primaryHouseImage = data.find((img) => img.is_primary_house);
-
-      const sliderImages = [];
-      if (primaryProfileImage) sliderImages.push(primaryProfileImage.image_url);
-      if (primaryHouseImage) sliderImages.push(primaryHouseImage.image_url);
-
-      setSliderImages(sliderImages);
-    } catch (error) {
-      console.error("Error fetching primary images:", error);
-    }
-  };
-
+    const fetchPrimaryImages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profile_images')
+          .select('*')
+          .eq('profile_id', id)
+          .or('is_primary_profile.eq.true,is_primary_house.eq.true'); 
+        if (error) throw error;
+        const primaryProfileImage = data.find((img) => img.is_primary_profile);
+        const primaryHouseImage = data.find((img) => img.is_primary_house);
+        const sliderImgs = [];
+        if (primaryProfileImage) sliderImgs.push(primaryProfileImage.image_url);
+        if (primaryHouseImage) sliderImgs.push(primaryHouseImage.image_url);
+        setSliderImages(sliderImgs);
+      } catch (error) {
+        console.error("Error fetching primary images:", error);
+      }
+    };
 
     fetchProfile();
     fetchPrimaryImages();
   }, [id, router]);
-
-  
-  // Call this function in the `useEffect` hook
-  
 
   // Refresh images callback
   const refreshImages = async () => {
@@ -153,14 +140,13 @@ const ProfileDetails = () => {
         .eq('id', id);
       if (error) throw error;
 
-      // Refresh the profile data to reflect the changes
+      // Refresh the profile data
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', id)
         .maybeSingle();
       setProfile(data);
-
       alert(`Primary ${type} image updated successfully!`);
     } catch (error) {
       console.error("Error setting primary image:", error);
@@ -220,8 +206,8 @@ const ProfileDetails = () => {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6">
-          <h1 className="text-4xl font-extrabold text-center text-[#8B0000] mb-8">
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl p-8">
+          <h1 className="text-4xl font-bold text-center text-[#8B0000] mb-8">
             {profile.full_name}&apos;s Profile
           </h1>
 
@@ -233,7 +219,7 @@ const ProfileDetails = () => {
               slidesPerView={1}
               navigation
               pagination={{ clickable: true }}
-              className="mb-8"
+              className="mb-10"
             >
               {sliderImages.map((imgUrl, idx) => (
                 <SwiperSlide key={idx}>
@@ -242,24 +228,24 @@ const ProfileDetails = () => {
                       src={imgUrl}
                       alt={`Image ${idx + 1}`}
                       fill
-                      className="object-cover rounded-lg border border-gray-300"
+                      className="object-cover rounded-xl shadow-md transition-transform hover:scale-105"
                     />
                   </div>
                 </SwiperSlide>
               ))}
             </Swiper>
           ) : (
-            <div className="flex items-center justify-center h-64 sm:h-80 md:h-96 bg-gray-200 rounded-lg mb-8">
-              <p className="text-lg sm:text-xl text-gray-600">No primary images available</p>
+            <div className="flex items-center justify-center h-64 sm:h-80 md:h-96 bg-gray-200 rounded-xl mb-10">
+              <p className="text-xl text-gray-600">No primary images available</p>
             </div>
           )}
 
           {/* "All Photos" Button */}
           {authUser && authUser.id === id && (
-            <div className="mb-8 text-center">
+            <div className="mb-10 text-center">
               <button
                 onClick={() => setShowModal(true)}
-                className="px-6 py-3 bg-[#8B0000] text-white rounded-full hover:bg-[#640000] transition-colors shadow-lg"
+                className="px-8 py-3 bg-[#8B0000] text-white rounded-full hover:bg-[#640000] transition-colors shadow-lg"
               >
                 View All Photos
               </button>
@@ -280,160 +266,128 @@ const ProfileDetails = () => {
           )}
 
           {/* Profile Details */}
-          <div className="mb-8 space-y-4 text-base sm:text-lg text-gray-800">
-            <p>
-              <strong>Full Name:</strong> {profile.full_name}
-            </p>
-            <p>
-              <strong>Date of Birth:</strong> {new Date(profile.date_of_birth).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>Gender:</strong> {profile.gender}
-            </p>
-            <p>
-              <strong>Caste:</strong> {profile.caste || "Not specified"}
-            </p>
-            <p>
-              <strong>Mother Tongue:</strong> {profile.mother_tongue}
-            </p>
-            <p>
-              <strong>Marital Status:</strong> {profile.marital_status || "Not specified"}
-            </p>
-            <p>
-              <strong>Height:</strong> {profile.height_cm ? `${profile.height_cm} cm` : "Not specified"}
-            </p>
-            <p>
-              <strong>Weight:</strong> {profile.weight_kg ? `${profile.weight_kg} kg` : "Not specified"}
-            </p>
-            <p>
-              <strong>Diet:</strong> {profile.diet || "Not specified"}
-            </p>
-            <p>
-              <strong>Smoking Habit:</strong> {profile.smoking_habit ? "Yes" : "No"}
-            </p>
-            <p>
-              <strong>Drinking Habit:</strong> {profile.drinking_habit ? "Yes" : "No"}
-            </p>
-            <p>
-              <strong>Occupation:</strong> {profile.occupation}
-            </p>
-            <p>
-              <strong>Annual Income:</strong> ₹{profile.annual_income}
-            </p>
-            <p>
-              <strong>City:</strong> {profile.city || "Not specified"}
-            </p>
-            <p>
-              <strong>State:</strong> {profile.state || "Not specified"}
-            </p>
-            <p>
-              <strong>Country:</strong> {profile.country || "Not specified"}
-            </p>
-            <p>
-              <strong>Bio:</strong> {profile.bio || "Not specified"}
-            </p>
-            <div>
-      
-     
-            <button onClick={startChat} disabled={!profile.allowChat}>
-      {profile.allowChat ? "Start Chat" : "User has disabled chat"}
-    </button>
-    </div>
+          <div className="mb-10 space-y-4 text-base text-gray-700">
+            <p><span className="font-bold">Full Name:</span> {profile.full_name}</p>
+            <p><span className="font-bold">Date of Birth:</span> {new Date(profile.date_of_birth).toLocaleDateString()}</p>
+            <p><span className="font-bold">Gender:</span> {profile.gender}</p>
+            <p><span className="font-bold">Caste:</span> {profile.caste || "Not specified"}</p>
+            <p><span className="font-bold">Mother Tongue:</span> {profile.mother_tongue}</p>
+            <p><span className="font-bold">Marital Status:</span> {profile.marital_status || "Not specified"}</p>
+            <p><span className="font-bold">Height:</span> {profile.height_cm ? `${profile.height_cm} cm` : "Not specified"}</p>
+            <p><span className="font-bold">Weight:</span> {profile.weight_kg ? `${profile.weight_kg} kg` : "Not specified"}</p>
+            <p><span className="font-bold">Diet:</span> {profile.diet || "Not specified"}</p>
+            <p><span className="font-bold">Smoking Habit:</span> {profile.smoking_habit ? "Yes" : "No"}</p>
+            <p><span className="font-bold">Drinking Habit:</span> {profile.drinking_habit ? "Yes" : "No"}</p>
+            <p><span className="font-bold">Occupation:</span> {profile.occupation}</p>
+            <p><span className="font-bold">Annual Income:</span> ₹{profile.annual_income}</p>
+            <p><span className="font-bold">City:</span> {profile.city || "Not specified"}</p>
+            <p><span className="font-bold">State:</span> {profile.state || "Not specified"}</p>
+            <p><span className="font-bold">Country:</span> {profile.country || "Not specified"}</p>
+            <p><span className="font-bold">Bio:</span> {profile.bio || "Not specified"}</p>
+            <div className="mt-4">
+              <button 
+                onClick={startChat} 
+                disabled={!profile.allowChat}
+                className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md"
+              >
+                {profile.allowChat ? "Start Chat" : "Chat Disabled"}
+              </button>
+            </div>
           </div>
-        
-                
-
+          
           {/* Update Profile Form (only for owner) */}
           {authUser && authUser.id === id && (
             <>
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className="mb-6 px-6 py-3 bg-[#8B0000] text-white rounded-full hover:bg-[#640000] transition-colors"
-              >
-                {editMode ? 'Cancel Update' : 'Update Profile'}
-              </button>
+              <div className="mb-6 text-center">
+                <button
+                  onClick={() => setEditMode(!editMode)}
+                  className="px-8 py-3 bg-[#8B0000] text-white rounded-full hover:bg-[#640000] transition-colors shadow-lg"
+                >
+                  {editMode ? 'Cancel Update' : 'Update Profile'}
+                </button>
+              </div>
               {editMode && (
-                <form onSubmit={handleUpdateProfile} className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form onSubmit={handleUpdateProfile} className="space-y-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block font-semibold">Marital Status</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">Marital Status</label>
                       <input
                         type="text"
                         value={maritalStatus}
                         onChange={(e) => setMaritalStatus(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                     <div>
-                      <label className="block font-semibold">Weight (kg)</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">Weight (kg)</label>
                       <input
                         type="number"
                         value={weight}
                         onChange={(e) => setWeight(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block font-semibold">Bio</label>
+                    <label className="block text-lg font-semibold text-gray-800 mb-2">Bio</label>
                     <textarea
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
-                      className="w-full border border-gray-300 p-2 rounded"
+                      className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div>
-                      <label className="block font-semibold">City</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">City</label>
                       <input
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                     <div>
-                      <label className="block font-semibold">State</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">State</label>
                       <input
                         type="text"
                         value={stateValue}
                         onChange={(e) => setStateValue(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                     <div>
-                      <label className="block font-semibold">Country</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">Country</label>
                       <input
                         type="text"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block font-semibold">Occupation</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">Occupation</label>
                       <input
                         type="text"
                         value={occupation}
                         onChange={(e) => setOccupation(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                     <div>
-                      <label className="block font-semibold">Annual Income</label>
+                      <label className="block text-lg font-semibold text-gray-800 mb-2">Annual Income</label>
                       <input
                         type="number"
                         value={annualIncome}
                         onChange={(e) => setAnnualIncome(e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded"
+                        className="w-full p-3 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
                       />
                     </div>
                   </div>
                   <button
                     type="submit"
-                    className="w-full p-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600"
+                    className="w-full py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors shadow-lg"
                     disabled={loading}
                   >
                     {loading ? 'Updating...' : 'Update Profile'}
